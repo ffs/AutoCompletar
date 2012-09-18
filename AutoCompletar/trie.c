@@ -265,6 +265,8 @@ void *trie_lookup(Trie *trie, char *key)
 		++p;
 	}
 
+
+
 	return node->data;
 }
 
@@ -277,6 +279,55 @@ int trie_num_entries(Trie *trie)
 		return 0;
 	} else {
 		return trie->root_node->use_count;
+	}
+}
+
+// RODRIGO
+void *auto_completa(Trie *trie, char *key, int nro_autocompletar)
+{
+	if (nro_autocompletar == 0) {
+		return NULL;
+	}
+
+	TrieNode *node;
+	char *p;
+	int c;
+
+	/* Search down the trie until the end of string is found */
+
+	node = trie->root_node;
+	p = key;
+
+	while (*p != '\0') {
+		if (node == NULL) {
+			/* Not found - reached end of branch */
+
+			return NULL;
+		}
+
+		/* Advance to the next node in the chain, next character */
+
+		c = *p;
+		node = node->next[c];
+		++p;
+	}
+
+	int i;
+	TrieNode *aux;
+	while (nro_autocompletar >= 0 && node != NULL) {
+		for (i = 0; i <= 255; i++) {
+			aux = node->next[i];
+			if (aux != NULL) {
+				if (aux->data != NULL) {
+					printf("%s\n", (char *)aux->data);
+					nro_autocompletar--;
+
+					auto_completa(trie, aux->data, nro_autocompletar);
+				}
+
+				auto_completa(trie, aux->data, nro_autocompletar);
+			}
+		}
 	}
 }
 
